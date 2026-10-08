@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shakwa_app/features/profile/presentation/pages/update_account_page.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -75,7 +76,14 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
               ),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UpdateAccountPage(),
+                    ),
+                  );
+                },
                 child: Row(
                   children: [
                     Text(
