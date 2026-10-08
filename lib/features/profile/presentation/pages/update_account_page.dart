@@ -14,254 +14,232 @@ class UpdateAccountPage extends StatefulWidget {
 }
 
 class _UpdateAccountPageState extends State<UpdateAccountPage> {
+  final _formKey = GlobalKey<FormState>();
   File? _idImage;
   File? _profileImage;
+  bool _submitted = false;
 
-  final TextEditingController _nameController = TextEditingController(
-    text: 'احمد علي خالد',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'AhmadKhald@gmail.com',
-  );
-  final TextEditingController _nationalIdController = TextEditingController(
-    text: '020202020202020202',
-  );
-  final TextEditingController _passwordController = TextEditingController(
-    text: '****************',
-  );
-
-  Future<void> _pickIdImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _idImage = File(image.path);
-      });
-    }
-  }
-
-  Future<void> _pickProfileImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _profileImage = File(image.path);
-      });
-    }
-  }
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _nationalIdCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _nationalIdController.dispose();
-    _passwordController.dispose();
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _nationalIdCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(bool isId) async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        if (isId) {
+          _idImage = File(picked.path);
+        } else {
+          _profileImage = File(picked.path);
+        }
+      });
+    }
+  }
+
+  void _save() {
+    setState(() => _submitted = true);
+    if (_formKey.currentState!.validate() && _idImage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'تم تعديل المعلومات بنجاح',
+            style: GoogleFonts.tajawal(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: const Color(0xFF0C655E),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Future.delayed(
+        const Duration(milliseconds: 1200),
+        () => Navigator.pop(context),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 430.0;
-    const Color primaryColor = Color(0xFF0C655E);
-    const Color goldColor = Color(0xFFD4AF37);
+    final scale = MediaQuery.of(context).size.width / 430.0;
+    const primary = Color(0xFF0C655E);
+    const gold = Color(0xFFD4AF37);
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7F8FA),
-        appBar: AppBar(
-          backgroundColor: primaryColor,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          toolbarHeight: 70 * scale,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // الشعار والعنوان في اليسار (حسب التصميم)
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'شكوى',
-                        style: GoogleFonts.tajawal(
-                          fontSize: 12 * scale,
-                          color: goldColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+      appBar: AppBar(
+        backgroundColor: primary,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 65 * scale,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'شكوى',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 12 * scale,
+                    color: gold,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(width: 8 * scale),
-                  Icon(
-                    Icons.workspace_premium,
-                    color: goldColor,
-                    size: 28 * scale,
+                ),
+                SizedBox(width: 6 * scale),
+                Icon(Icons.workspace_premium, color: gold, size: 26 * scale),
+              ],
+            ),
+            Text(
+              'تعديل معلومات الحساب',
+              style: GoogleFonts.tajawal(
+                fontSize: 16 * scale,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Row(
+                children: [
+                  Text(
+                    'رجوع',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 14 * scale,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 4 * scale),
+                  const Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
+                    size: 18,
                   ),
                 ],
               ),
-              // عنوان الشاشة في المنتصف
-              Text(
-                'تعديل معلومات الحساب',
-                style: GoogleFonts.tajawal(
-                  fontSize: 17 * scale,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              // زر رجوع في اليمين
-              InkWell(
-                onTap: () => Navigator.pop(context),
-                child: Row(
-                  children: [
-                    Text(
-                      'رجوع',
-                      style: GoogleFonts.tajawal(
-                        fontSize: 15 * scale,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(width: 4 * scale),
-                    const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: 20 * scale,
-            vertical: 24 * scale,
-          ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20 * scale),
+        child: Form(
+          key: _formKey,
           child: Column(
             children: [
-              // صورة البروفايل الدائرية بالأعلى
               Center(
                 child: Stack(
                   alignment: Alignment.bottomLeft,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(3 * scale),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 45 * scale,
-                        backgroundColor: Colors.grey.shade100,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : null,
-                        child: _profileImage == null
-                            ? Icon(
-                                Icons.person_outline,
-                                size: 50 * scale,
-                                color: Colors.grey.shade400,
-                              )
-                            : null,
-                      ),
+                    CircleAvatar(
+                      radius: 45 * scale,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : null,
+                      child: _profileImage == null
+                          ? Icon(
+                              Icons.person,
+                              size: 45 * scale,
+                              color: Colors.grey.shade400,
+                            )
+                          : null,
                     ),
                     InkWell(
-                      onTap: _pickProfileImage,
+                      onTap: () => _pickImage(false),
                       child: Container(
                         padding: EdgeInsets.all(6 * scale),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
+                        decoration: const BoxDecoration(
+                          color: primary,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.camera_alt,
                           color: Colors.white,
-                          size: 14 * scale,
+                          size: 14,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 24 * scale),
+              SizedBox(height: 20 * scale),
 
-              // حقل الاسم
-              _buildTextFieldLabel('الاسم', scale),
-              SizedBox(height: 6 * scale),
-              _buildCustomTextField(_nameController, false, scale),
-              SizedBox(height: 16 * scale),
-
-              // حقل الايميل
-              _buildTextFieldLabel('الايميل', scale),
-              SizedBox(height: 6 * scale),
-              _buildCustomTextField(
-                _emailController,
-                false,
+              _field('الاسم الكامل', _nameCtrl, 'أدخل الاسم', scale),
+              _field(
+                'البريد الإلكتروني',
+                _emailCtrl,
+                'example@gmail.com',
                 scale,
-                keyboardType: TextInputType.emailAddress,
+                type: TextInputType.emailAddress,
               ),
-              SizedBox(height: 16 * scale),
-
-              // حقل الرقم الوطني
-              _buildTextFieldLabel('الرقم الوطني', scale),
-              SizedBox(height: 6 * scale),
-              _buildCustomTextField(
-                _nationalIdController,
-                false,
+              _field(
+                'الرقم الوطني',
+                _nationalIdCtrl,
+                'أدخل الرقم الوطني',
                 scale,
-                keyboardType: TextInputType.number,
+                type: TextInputType.number,
               ),
-              SizedBox(height: 16 * scale),
+              _field(
+                'كلمة المرور',
+                _passwordCtrl,
+                '••••••••••••',
+                scale,
+                obscure: true,
+              ),
 
-              // حقل كلمة المرور
-              _buildTextFieldLabel('كلمة المرور', scale),
-              SizedBox(height: 6 * scale),
-              _buildCustomTextField(_passwordController, true, scale),
-              SizedBox(height: 16 * scale),
-
-              // رفع صورة الهوية
-              _buildTextFieldLabel('ادخل صورة عن الهوية', scale),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'ادخل صورة عن الهوية',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 13 * scale,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               SizedBox(height: 6 * scale),
               GestureDetector(
-                onTap: _pickIdImage,
+                onTap: () => _pickImage(true),
                 child: Container(
-                  height: 52 * scale,
+                  height: 50 * scale,
                   padding: EdgeInsets.symmetric(horizontal: 16 * scale),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12 * scale),
                     border: Border.all(
-                      color: const Color(0xFFE57373),
-                      width: 1,
-                    ), // إطار أحمر مطابق للصورة
+                      color: (_submitted && _idImage == null)
+                          ? Colors.red
+                          : Colors.grey.shade300,
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        Icons.file_upload_outlined,
-                        color: Colors.grey.shade600,
-                        size: 20 * scale,
+                        Icons.upload_file,
+                        color: (_submitted && _idImage == null)
+                            ? Colors.red
+                            : primary,
+                        size: 20,
                       ),
                       SizedBox(width: 12 * scale),
                       Expanded(
                         child: Text(
                           _idImage != null
-                              ? 'تم اختيار صورة الهوية'
+                              ? 'تم اختيار صورة الهوية بنجاح'
                               : 'تغيير صورة الهوية',
                           textAlign: TextAlign.right,
                           style: GoogleFonts.tajawal(
-                            fontSize: 14 * scale,
-                            color: const Color(0xFF2D2D2D),
-                            fontWeight: FontWeight.w500,
+                            fontSize: 13 * scale,
+                            color: _idImage != null
+                                ? primary
+                                : Colors.grey.shade600,
                           ),
                         ),
                       ),
@@ -269,20 +247,32 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 32 * scale),
+              if (_submitted && _idImage == null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, right: 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'يرجى اختيار صورة الهوية',
+                      style: GoogleFonts.tajawal(
+                        fontSize: 11,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
 
-              // زر حفظ
+              SizedBox(height: 30 * scale),
               SizedBox(
                 width: double.infinity,
-                height: 52 * scale,
+                height: 50 * scale,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12 * scale),
                     ),
-                    elevation: 0,
                   ),
                   child: Text(
                     'حفظ',
@@ -301,55 +291,67 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
     );
   }
 
-  Widget _buildTextFieldLabel(String label, double scale) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        label,
-        style: GoogleFonts.tajawal(
-          fontSize: 13 * scale,
-          fontWeight: FontWeight.bold,
-          color: const Color(0xFF333333),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomTextField(
-    TextEditingController controller,
-    bool obscureText,
+  Widget _field(
+    String label,
+    TextEditingController ctrl,
+    String hint,
     double scale, {
-    TextInputType keyboardType = TextInputType.text,
+    bool obscure = false,
+    TextInputType type = TextInputType.text,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      textAlign: TextAlign.right,
-      style: GoogleFonts.tajawal(
-        fontSize: 14 * scale,
-        color: const Color(0xFF1E1E1E),
-        fontWeight: FontWeight.w500,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16 * scale,
-          vertical: 14 * scale,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.tajawal(
+            fontSize: 13 * scale,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12 * scale),
-          borderSide: const BorderSide(
-            color: Color(0xFFE57373),
-            width: 1,
-          ), // إطار أحمر مطابق للفيجما
+        SizedBox(height: 6 * scale),
+        TextFormField(
+          controller: ctrl,
+          obscureText: obscure,
+          keyboardType: type,
+          textAlign: TextAlign.right,
+          style: GoogleFonts.tajawal(fontSize: 14 * scale),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: hint,
+            hintStyle: GoogleFonts.tajawal(
+              fontSize: 13 * scale,
+              color: Colors.grey.shade400,
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16 * scale,
+              vertical: 14 * scale,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12 * scale),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12 * scale),
+              borderSide: const BorderSide(
+                color: Color(0xFF0C655E),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12 * scale),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12 * scale),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+          ),
+          validator: (v) => v == null || v.isEmpty ? 'هذا الحقل مطلوب' : null,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12 * scale),
-          borderSide: const BorderSide(color: Color(0xFF0C655E), width: 1.5),
-        ),
-      ),
+        SizedBox(height: 14 * scale),
+      ],
     );
   }
 }
