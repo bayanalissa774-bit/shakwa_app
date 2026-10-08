@@ -153,7 +153,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               SizedBox(height: 16 * scale),
               Text(
-                'احمد علي خالد',
+                "Bayan Alissa",
                 style: GoogleFonts.tajawal(
                   fontSize: 22 * scale,
                   fontWeight: FontWeight.bold,
@@ -235,7 +235,7 @@ class _ProfileViewState extends State<ProfileView> {
                             _buildInfoRow('رقم الهاتف:', '0933232322', scale),
                             _buildInfoRow(
                               'البريد الإلكتروني:',
-                              'ahmad.khald@gmil.com',
+                              'bayan.alissa111@gmail.com',
                               scale,
                             ),
                             _buildInfoRow('العنوان:', 'حلب المرديان', scale),

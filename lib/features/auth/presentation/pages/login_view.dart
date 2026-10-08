@@ -274,7 +274,7 @@ class _LoginViewState extends State<LoginView> {
                         // --- نص إنشاء حساب جديد ---
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/signup');
+                            Navigator.pushReplacementNamed(context, '/signup');
                           },
                           child: RichText(
                             textAlign: TextAlign.center,
