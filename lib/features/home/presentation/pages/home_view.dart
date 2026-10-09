@@ -7,6 +7,7 @@ import 'package:shakwa_app/features/complaints/presentation/pages/complaints_lis
 import 'package:shakwa_app/features/news/presentation/pages/news_view.dart';
 import 'package:shakwa_app/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/profile_view.dart';
+import 'package:shakwa_app/features/track_complain/presentation/pages/track_complaint_page.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -265,7 +266,15 @@ class _HomeViewState extends State<HomeView> {
                               title: 'متابعة الشكوى',
                               icon: Icons.history,
                               scale: scale,
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TrackComplaintPage(),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           SizedBox(width: 16 * scale),
