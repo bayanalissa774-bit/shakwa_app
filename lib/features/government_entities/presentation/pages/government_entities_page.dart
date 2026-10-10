@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
-import '../../../../main.dart'; // للعودة لصفحة الـ HomeView عند الضغط على زر الرجوع
 import '../widgets/entity_card.dart';
 
 class GovernmentEntitiesPage extends StatefulWidget {

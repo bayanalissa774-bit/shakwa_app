@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/profile_view.dart';
 

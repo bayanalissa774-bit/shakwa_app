@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
-import '../../../../main.dart';
 import '../widgets/complaint_success_card.dart'; // استدعاء كرت النجاح
 import '../widgets/complaint_error_card.dart'; // استدعاء كرت الخطأ
 

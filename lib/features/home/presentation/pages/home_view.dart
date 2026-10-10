@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_view.dart';
+import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_page.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/complaints_list_page.dart';
+// import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_view.dart';
+
 import 'package:shakwa_app/features/government_entities/presentation/pages/government_entities_page.dart';
 import 'package:shakwa_app/features/news/presentation/pages/news_view.dart';
 import 'package:shakwa_app/features/notifications/presentation/pages/notifications_page.dart';
@@ -222,7 +224,7 @@ class _HomeViewState extends State<HomeView> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const AddComplaintView(),
+                            builder: (context) => const AddComplaintPage(),
                           ),
                         );
                       },

@@ -1,8 +1,11 @@
 // lib/features/complaints/presentation/pages/complaints_list_page.dart
 
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_view.dart';
+import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_page.dart';
+import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
 class ComplaintsListPage extends StatefulWidget {
   const ComplaintsListPage({super.key});
@@ -89,7 +92,15 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
                   children: [
                     // اليمين: زر رجوع والسهم
                     InkWell(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeView(),
+                          ),
+                          (route) => false,
+                        );
+                      },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -262,7 +273,7 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AddComplaintView(), // استبدلي AddComplaintPage باسم صفحة تقديم شكوى جديدة لديكِ
+                builder: (context) => const AddComplaintPage(), // استبدلي AddComplaintPage باسم صفحة تقديم شكوى جديدة لديكِ
               ),
             );
           },

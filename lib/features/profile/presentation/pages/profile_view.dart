@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/update_account_page.dart';
 
 class ProfileView extends StatefulWidget {
@@ -47,19 +48,26 @@ class _ProfileViewState extends State<ProfileView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeView()),
+                    (route) => false,
+                  );
+                },
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.arrow_forward,
+                    Icon(
+                      Icons.arrow_back,
                       color: Colors.white,
-                      size: 20,
+                      size: 20 * scale,
                     ),
                     SizedBox(width: 4 * scale),
                     Text(
                       'رجوع',
                       style: GoogleFonts.tajawal(
-                        fontSize: 15 * scale,
+                        fontSize: 16 * scale,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
