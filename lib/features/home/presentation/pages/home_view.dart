@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_view.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/complaints_list_page.dart';
+import 'package:shakwa_app/features/government_entities/presentation/pages/government_entities_page.dart';
 import 'package:shakwa_app/features/news/presentation/pages/news_view.dart';
 import 'package:shakwa_app/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/profile_view.dart';
@@ -283,7 +284,12 @@ class _HomeViewState extends State<HomeView> {
                               title: 'الشكاوي',
                               icon: Icons.article_outlined,
                               scale: scale,
-                              onTap: () {},
+                              onTap: () {
+                                setState(() {
+                                  _currentIndex =
+                                      1; // رقم تبويب الشكاوي في الشريط السفلي
+                                });
+                              },
                             ),
                           ),
                         ],
@@ -305,7 +311,15 @@ class _HomeViewState extends State<HomeView> {
                               title: 'الجهات الحكومية',
                               icon: Icons.account_balance_outlined,
                               scale: scale,
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GovernmentEntitiesPage(),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],

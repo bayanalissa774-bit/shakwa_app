@@ -4,12 +4,27 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
+        // إعدادات تشغيل التطبيق الأساسية
         {
-            "name": "shakwa_app",
+            "name": "shakwa_app (All Devices)",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "deviceId": "all"
         },
+        {
+            "name": "shakwa_app (Galaxy A12)",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "R58R80HRPCV"
+        },
+        {
+            "name": "shakwa_app (Emulator)",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5554"
+        },
+
+        // إعدادات الأنماط الأخرى (Profile & Release)
         {
             "name": "shakwa_app (profile mode)",
             "request": "launch",
@@ -22,6 +37,8 @@
             "type": "dart",
             "flutterMode": "release"
         },
+
+        // إعدادات معاينة الوجييت (.widget_preview)
         {
             "name": ".widget_preview",
             "cwd": ".widget_preview",
@@ -41,6 +58,17 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        }
+    ],
+
+    // خاصية التشغيل المتعدد للبدء على الجهازين بضغطة زر واحدة
+    "compounds": [
+        {
+            "name": "Run shakwa_app on BOTH Devices",
+            "configurations": [
+                "shakwa_app (Galaxy A12)",
+                "shakwa_app (Emulator)"
+            ]
         }
     ]
 }

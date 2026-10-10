@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_view.dart';
 
 class ComplaintsListPage extends StatefulWidget {
   const ComplaintsListPage({super.key});
@@ -257,7 +258,14 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
 
         // زر الإضافة العائم (+) باللون الرسمي
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddComplaintView(), // استبدلي AddComplaintPage باسم صفحة تقديم شكوى جديدة لديكِ
+              ),
+            );
+          },
           backgroundColor: primaryColor,
           elevation: 4,
           child: Icon(Icons.add, color: Colors.white, size: 28 * scale),
