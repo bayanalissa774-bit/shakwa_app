@@ -1,9 +1,10 @@
-// lib/features/home/presentation/pages/news_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shakwa_app/features/news/presentation/pages/news_details_page.dart';
 import 'package:shakwa_app/features/home/presentation/widgets/favorites_sheet.dart';
+import 'package:shakwa_app/features/news/presentation/pages/news_details_page.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_view/news_banner_slider.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_view/news_card_item.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_view/news_categories_bar.dart';
 
 class NewsView extends StatefulWidget {
   const NewsView({super.key});
@@ -81,7 +82,6 @@ class _NewsViewState extends State<NewsView> {
           elevation: 0,
           centerTitle: true,
           toolbarHeight: 75 * scale,
-          // اليمين: زر الإشعارات (الجرس)
           leading: IconButton(
             icon: Icon(
               Icons.notifications_none,
@@ -90,7 +90,6 @@ class _NewsViewState extends State<NewsView> {
             ),
             onPressed: () {},
           ),
-          // الوسط: عنوان الشاشة متوسع بدقة
           title: Text(
             'الأخبار',
             style: GoogleFonts.tajawal(
@@ -99,7 +98,6 @@ class _NewsViewState extends State<NewsView> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          // اليسار: أزرار المفضلة والبحث بمسافات نظامية
           actions: [
             IconButton(
               icon: Icon(
@@ -124,124 +122,38 @@ class _NewsViewState extends State<NewsView> {
             children: [
               SizedBox(height: 16 * scale),
 
-              // 1. السلايدر العلوي بأبعاد مضبوطة
-              SizedBox(
-                height: 290 * scale,
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _bannerImages.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _bannerIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final isSelected = index == _bannerIndex;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 6 * scale,
-                        vertical: isSelected ? 0 : 10 * scale,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20 * scale),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x26000000),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20 * scale),
-                        child: Image.asset(
-                          _bannerImages[index],
-                          fit: BoxFit.fill,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: primaryColor,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.newspaper,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                ),
-                              ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              SizedBox(height: 12 * scale),
-
-              // 2. مؤشر النقاط لصفحات السلايدر
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _bannerImages.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _bannerIndex == index ? 22 * scale : 8 * scale,
-                    height: 8 * scale,
-                    decoration: BoxDecoration(
-                      color: _bannerIndex == index
-                          ? primaryColor
-                          : const Color(0xFFBDBDBD),
-                      borderRadius: BorderRadius.circular(4 * scale),
-                    ),
-                  ),
-                ),
+              // السلايدر العلوي المفصول
+              NewsBannerSlider(
+                pageController: _pageController,
+                bannerImages: _bannerImages,
+                bannerIndex: _bannerIndex,
+                onPageChanged: (index) {
+                  setState(() {
+                    _bannerIndex = index;
+                  });
+                },
+                scale: scale,
+                primaryColor: primaryColor,
               ),
 
               SizedBox(height: 20 * scale),
 
-              // 3. أزرار التصنيفات
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(_categories.length, (index) {
-                    final isSelected = _selectedCategoryIndex == index;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedCategoryIndex = index;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(20 * scale),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 18 * scale,
-                          vertical: 8 * scale,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected ? primaryColor : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20 * scale),
-                        ),
-                        child: Text(
-                          _categories[index],
-                          style: GoogleFonts.tajawal(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? Colors.white : primaryColor,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
+              // أزرار التصنيفات المفصولة
+              NewsCategoriesBar(
+                categories: _categories,
+                selectedCategoryIndex: _selectedCategoryIndex,
+                onCategorySelected: (index) {
+                  setState(() {
+                    _selectedCategoryIndex = index;
+                  });
+                },
+                scale: scale,
+                primaryColor: primaryColor,
               ),
 
               SizedBox(height: 20 * scale),
 
-              // 4. قائمة الأخبار السفلية
+              // قائمة الأخبار السفلية المفصولة
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -249,121 +161,21 @@ class _NewsViewState extends State<NewsView> {
                 itemCount: _newsItems.length,
                 itemBuilder: (context, index) {
                   final item = _newsItems[index];
-                  return InkWell(
+                  return NewsCardItem(
+                    item: item,
+                    scale: scale,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => NewsDetailsPage(
-                            title: item['title'],
-                            imagePath: item['image'],
-                            date: item['time'],
+                            title: item['title']!,
+                            imagePath: item['image']!,
+                            date: item['time']!,
                           ),
                         ),
                       );
                     },
-                    borderRadius: BorderRadius.circular(16 * scale),
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 16 * scale),
-                      padding: EdgeInsets.all(12 * scale),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16 * scale),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x11000000),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          // صورة الخبر (على اليمين)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12 * scale),
-                            child: Image.asset(
-                              item['image']!,
-                              width: 80 * scale,
-                              height: 80 * scale,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    width: 80 * scale,
-                                    height: 80 * scale,
-                                    color: Colors.grey[300],
-                                    child: const Icon(
-                                      Icons.image,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                          SizedBox(width: 12 * scale),
-
-                          // تفاصيل الخبر والنص (على اليسار)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // التاج
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 14 * scale,
-                                    vertical: 3 * scale,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFCDCDC),
-                                    borderRadius: BorderRadius.circular(
-                                      12 * scale,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    item['tag']!,
-                                    style: GoogleFonts.tajawal(
-                                      fontSize: 11 * scale,
-                                      color: const Color(0xFFD32F2F),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 8 * scale),
-                                // العنوان
-                                Text(
-                                  item['title']!,
-                                  style: GoogleFonts.tajawal(
-                                    fontSize: 13 * scale,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                // الوصف
-                                Text(
-                                  item['subtitle']!,
-                                  style: GoogleFonts.tajawal(
-                                    fontSize: 11 * scale,
-                                    color: Colors.grey[600],
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 8 * scale),
-                                // الوقت
-                                Text(
-                                  item['time']!,
-                                  style: GoogleFonts.tajawal(
-                                    fontSize: 10 * scale,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   );
                 },
               ),

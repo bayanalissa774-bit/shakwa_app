@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shakwa_app/features/government_entities/presentation/widgets/government_entities_slider.dart';
+import 'package:shakwa_app/features/government_entities/presentation/widgets/government_search_box.dart';
 import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
-
-import '../widgets/entity_card.dart';
 
 class GovernmentEntitiesPage extends StatefulWidget {
   const GovernmentEntitiesPage({super.key});
@@ -38,11 +38,9 @@ class _GovernmentEntitiesPageState extends State<GovernmentEntitiesPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // اليسار: الشعار والنسر مع كلمة شكوى
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                //       // أيقونة الإشعارات في اليمين
                 Padding(
                   padding: EdgeInsets.all(8.0 * scale),
                   child: const Icon(
@@ -62,12 +60,9 @@ class _GovernmentEntitiesPageState extends State<GovernmentEntitiesPage> {
             ),
             InkWell(
               onTap: () {
-                // العودة المباشرة للرئيسية ومسح الصفحات السابقة
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeView(),
-                  ), // استبدلي HomeView بالاسم الصحيح لدتيكِ
+                  MaterialPageRoute(builder: (context) => const HomeView()),
                   (route) => false,
                 );
               },
@@ -97,199 +92,20 @@ class _GovernmentEntitiesPageState extends State<GovernmentEntitiesPage> {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            // صندوق البحث العلوي مع زر الـ X التفاعلي وأيقونة العدسة
-            Container(
-              margin: EdgeInsets.all(20 * scale),
-              padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12 * scale),
-                border: Border.all(color: Colors.grey.shade300),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _searchController,
-                    textAlign: TextAlign.right,
-                    onChanged: (value) => setState(() {}),
-                    style: GoogleFonts.tajawal(
-                      fontSize: 14 * scale,
-                      color: const Color(0xFF1E1E1E),
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'البحث عن جهة حكومية....',
-                      hintStyle: GoogleFonts.tajawal(
-                        fontSize: 13 * scale,
-                        color: Colors.grey.shade400,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.grey.shade400,
-                        size: 22 * scale,
-                      ),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                color: Colors.grey.shade600,
-                                size: 18 * scale,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                });
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 14 * scale,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48 * scale,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10 * scale),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'بحث',
-                        style: GoogleFonts.tajawal(
-                          fontSize: 15 * scale,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12 * scale),
-                ],
-              ),
+            GovernmentSearchBox(
+              searchController: _searchController,
+              scale: scale,
+              primaryColor: primaryColor,
+              onChanged: (value) => setState(() {}),
+              onClear: () => setState(() => _searchController.clear()),
+              onSearchPressed: () => FocusScope.of(context).unfocus(),
             ),
-
-            // حاوية الصفحات المتحركة (PageView Carousel) للكرتات والنقاط التفاعلية
-            SizedBox(
-              height: 380 * scale,
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                children: [
-                  // الصفحة الأولى: كروت وزارة الصحة المتطابقة تماماً مع الفيجما
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16 * scale,
-                      mainAxisSpacing: 16 * scale,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      children: const [
-                        EntityCard(
-                          title: 'وزارة الصحة',
-                          subtitle: 'الرعاية الصحية',
-                        ),
-                        EntityCard(
-                          title: 'وزارة الداخلية',
-                          subtitle: 'خدمات المواطنين',
-                        ),
-                        EntityCard(
-                          title: 'وزارة التربية',
-                          subtitle: 'التعليم الأساسي',
-                        ),
-                        EntityCard(
-                          title: 'وزارة العدل',
-                          subtitle: 'الخدمات العدلية',
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // الصفحة الثانية: بيانات وهمية مختلفة (مثل وزارة التربية) لاختبار السحب
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16 * scale,
-                      mainAxisSpacing: 16 * scale,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      children: const [
-                        EntityCard(
-                          title: 'وزارة التربية',
-                          subtitle: 'التعليم الأساسي',
-                        ),
-                        EntityCard(
-                          title: 'وزارة التعليم',
-                          subtitle: 'التعليم العالي',
-                        ),
-                        EntityCard(
-                          title: 'وزارة الداخلية',
-                          subtitle: 'خدمات المواطنين',
-                        ),
-                        EntityCard(
-                          title: 'وزارة العدل',
-                          subtitle: 'الخدمات العدلية',
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // الصفحة الثالثة: صفحة إضافية لتفعيل وتجربة حركة الـ PageView بثلاث نقاط
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16 * scale,
-                      mainAxisSpacing: 16 * scale,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      children: const [
-                        EntityCard(
-                          title: 'وزارة المالية',
-                          subtitle: 'الضرائب والرسوم',
-                        ),
-                        EntityCard(
-                          title: 'وزارة النقل',
-                          subtitle: 'النقل البري والبحري',
-                        ),
-                        EntityCard(
-                          title: 'وزارة الإدارة',
-                          subtitle: 'شؤون البلديات',
-                        ),
-                        EntityCard(
-                          title: 'وزارة الاتصالات',
-                          subtitle: 'التحول الرقمي',
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            GovernmentEntitiesSlider(
+              pageController: _pageController,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              scale: scale,
             ),
-
             SizedBox(height: 16 * scale),
-
-            // نقاط الـ Smooth Page Indicator التفاعلية السفلية تماماً كالتصميم
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (index) {

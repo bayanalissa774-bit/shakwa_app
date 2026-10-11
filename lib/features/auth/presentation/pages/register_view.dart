@@ -1,6 +1,5 @@
-// lib/features/auth/presentation/pages/register_view.dart
-
 import 'package:flutter/material.dart';
+import 'package:shakwa_app/features/auth/presentation/widgets/auth_input_field.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -12,7 +11,6 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // وحدات التحكم بالحقول النصية
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nationalIdController = TextEditingController();
@@ -27,80 +25,6 @@ class _RegisterViewState extends State<RegisterView> {
     _passwordController.dispose();
     _idCardController.dispose();
     super.dispose();
-  }
-
-  // ودجت قابلة لإعادة الاستخدام لإنشاء حقول الإدخال والعناوين بسهولة
-  Widget _buildInputField({
-    required String label,
-    required String hintText,
-    required TextEditingController controller,
-    bool isPassword = false,
-    Widget? prefixIcon,
-    bool readOnly = false,
-    VoidCallback? onTap,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Cairo',
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          obscureText: isPassword,
-          readOnly: readOnly,
-          onTap: onTap,
-          textAlign: TextAlign.right,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return '';
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(
-              fontFamily: 'Cairo',
-              color: Colors.grey,
-              fontSize: 13,
-            ),
-            prefixIcon: prefixIcon, // لإضافة أيقونة الرفع على اليسار
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF4A6B6C)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF0E6655), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Color(0xFFFF5252),
-                width: 1.5,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFFF5252), width: 2),
-            ),
-            errorStyle: const TextStyle(height: 0),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
   }
 
   @override
@@ -138,7 +62,7 @@ class _RegisterViewState extends State<RegisterView> {
 
                 const SizedBox(height: 25),
 
-                // 2. العنوان الرئيسي "ابدأ الان"
+                // 2. العنوان الرئيسي
                 const Text(
                   'ابدأ الان',
                   textAlign: TextAlign.center,
@@ -152,49 +76,45 @@ class _RegisterViewState extends State<RegisterView> {
 
                 const SizedBox(height: 25),
 
-                // 3. حقول الإدخال المتعددة
-                _buildInputField(
+                // 3. حقول الإدخال المستقلة
+                AuthInputField(
                   label: 'الاسم',
                   hintText: 'ادخل الاسم',
                   controller: _nameController,
                 ),
-                _buildInputField(
+                AuthInputField(
                   label: 'الايميل',
                   hintText: 'ادخل الايميل',
                   controller: _emailController,
                 ),
-                _buildInputField(
+                AuthInputField(
                   label: 'الرقم الوطني',
                   hintText: 'ادخل الرقم الوطني',
                   controller: _nationalIdController,
                 ),
-                _buildInputField(
+                AuthInputField(
                   label: 'كلمة المرور',
                   hintText: 'ادخل كلمة المرور',
                   controller: _passwordController,
                   isPassword: true,
                 ),
-
-                // 4. حقل "ادخل صورة عن الهوية" مع أيقونة الرفع
-                _buildInputField(
+                AuthInputField(
                   label: 'ادخل صورة عن الهوية',
                   hintText: 'ارفق الصورة',
                   controller: _idCardController,
-                  readOnly:
-                      true, // لمنع الكتابة اليدوية وفتح اختيار الملف عند الضغط
+                  readOnly: true,
                   onTap: () {
-                    // فتح معرض الصور لاحقاً عند الربط البرمجي
+                    // فتح معرض الصور لاحقاً
                   },
                   prefixIcon: const Icon(
-                    Icons
-                        .file_download_outlined, // أيقونة الرفع المطابقة للصورة
+                    Icons.file_download_outlined,
                     color: Colors.grey,
                   ),
                 ),
 
                 const SizedBox(height: 15),
 
-                // 5. زر "إنشاء حساب"
+                // 4. زر "إنشاء حساب"
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
@@ -222,13 +142,12 @@ class _RegisterViewState extends State<RegisterView> {
 
                 const SizedBox(height: 25),
 
-                // 6. النص السفلي "هل لديك حساب؟ تسجيل الدخول"
+                // 5. النص السفلي
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // العودة لشاشة تسجيل الدخول
                         Navigator.pop(context);
                       },
                       child: const Text(

@@ -1,7 +1,8 @@
-// lib/features/home/presentation/pages/news_details_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_details/news_bookmark_button.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_details/news_category_chip.dart';
+import 'package:shakwa_app/features/news/presentation/widgets/news_details/news_details_app_bar.dart';
 
 class NewsDetailsPage extends StatefulWidget {
   final String? title;
@@ -44,96 +45,12 @@ class _NewsDetailsPageState extends State<NewsDetailsPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: primaryColor,
-          elevation: 0,
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          toolbarHeight: 75 * scale,
-          title: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () => Navigator.pop(context),
-                  borderRadius: BorderRadius.circular(20 * scale),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8 * scale,
-                      vertical: 4 * scale,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
-                          size: 18 * scale,
-                        ),
-                        SizedBox(width: 6 * scale),
-                        Text(
-                          'رجوع',
-                          style: GoogleFonts.tajawal(
-                            fontSize: 15 * scale,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Text(
-                  'تفاصيل الخبر',
-                  style: GoogleFonts.tajawal(
-                    fontSize: 18 * scale,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                InkWell(
-                  onTap: () {},
-                  borderRadius: BorderRadius.circular(20 * scale),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8 * scale,
-                      vertical: 4 * scale,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'مزيد',
-                          style: GoogleFonts.tajawal(
-                            fontSize: 15 * scale,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 4 * scale),
-                        const Icon(
-                          Icons.more_vert,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          titleSpacing: 0,
-        ),
-        // === هنا تم إضافة الـ ClipRRect مباشرة تحت الـ body ===
+        appBar: NewsDetailsAppBar(scale: scale, primaryColor: primaryColor),
         body: ClipRRect(
           borderRadius: BorderRadius.vertical(top: Radius.circular(45 * scale)),
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // --- هيدر الصورة ---
               SliverAppBar(
                 expandedHeight: 270.0 * scale,
                 pinned: false,
@@ -154,8 +71,6 @@ class _NewsDetailsPageState extends State<NewsDetailsPage> {
                   ),
                 ),
               ),
-
-              // --- الحاوية البيضاء ذات الحواف الناعمة أثناء السكرول ---
               SliverToBoxAdapter(
                 child: Transform.translate(
                   offset: Offset(0.0, -32.0 * scale),
@@ -184,13 +99,17 @@ class _NewsDetailsPageState extends State<NewsDetailsPage> {
                       children: [
                         Row(
                           children: [
-                            _buildCategoryChip(
-                              'الأخبار المحلية',
-                              primaryColor,
-                              scale,
+                            NewsCategoryChip(
+                              label: 'الأخبار المحلية',
+                              color: primaryColor,
+                              scale: scale,
                             ),
                             SizedBox(width: 10 * scale),
-                            _buildCategoryChip('هام', accentRed, scale),
+                            NewsCategoryChip(
+                              label: 'هام',
+                              color: accentRed,
+                              scale: scale,
+                            ),
                           ],
                         ),
                         SizedBox(height: 18 * scale),
@@ -244,61 +163,15 @@ class _NewsDetailsPageState extends State<NewsDetailsPage> {
                           ),
                         ),
                         SizedBox(height: 40 * scale),
-                        Center(
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isBookmarked = !_isBookmarked;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(20 * scale),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 26 * scale,
-                                vertical: 12 * scale,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _isBookmarked
-                                    ? const Color(0xFFFFF8E1)
-                                    : primaryColor.withOpacity(0.06),
-                                borderRadius: BorderRadius.circular(20 * scale),
-                                border: Border.all(
-                                  color: _isBookmarked
-                                      ? const Color(0xFFFFB300)
-                                      : primaryColor.withOpacity(0.2),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    _isBookmarked
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: _isBookmarked
-                                        ? const Color(0xFFFFA000)
-                                        : primaryColor,
-                                    size: 22 * scale,
-                                  ),
-                                  SizedBox(width: 10 * scale),
-                                  Text(
-                                    _isBookmarked
-                                        ? 'تمت الإضافة للمفضلة'
-                                        : 'إضافة للمفضلة',
-                                    style: GoogleFonts.tajawal(
-                                      fontSize: 15 * scale,
-                                      fontWeight: FontWeight.bold,
-                                      color: _isBookmarked
-                                          ? const Color(0xFF8D6E63)
-                                          : primaryColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                        NewsBookmarkButton(
+                          isBookmarked: _isBookmarked,
+                          onTap: () {
+                            setState(() {
+                              _isBookmarked = !_isBookmarked;
+                            });
+                          },
+                          scale: scale,
+                          primaryColor: primaryColor,
                         ),
                         SizedBox(height: 30 * scale),
                       ],
@@ -308,28 +181,6 @@ class _NewsDetailsPageState extends State<NewsDetailsPage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryChip(String label, Color color, double scale) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 14 * scale,
-        vertical: 6 * scale,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20 * scale),
-        border: Border.all(color: color.withOpacity(0.2), width: 1),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.tajawal(
-          fontSize: 12 * scale,
-          color: color,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
