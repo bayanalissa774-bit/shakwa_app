@@ -1,17 +1,54 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// استيراد طبقات الجهات الحكومية
+import 'package:shakwa_app/features/government_entities/data/datasources/government_entities_remote_data_source.dart';
+import 'package:shakwa_app/features/government_entities/data/repositories/government_entities_repository_impl.dart';
+import 'package:shakwa_app/features/government_entities/domain/usecases/get_government_entities_usecase.dart';
+import 'package:shakwa_app/features/government_entities/presentation/cubit/government_entities_cubit.dart';
+import 'package:shakwa_app/features/government_entities/presentation/cubit/government_entities_state.dart';
 import 'package:shakwa_app/features/government_entities/presentation/widgets/government_entities_slider.dart';
 import 'package:shakwa_app/features/government_entities/presentation/widgets/government_search_box.dart';
 import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
-class GovernmentEntitiesPage extends StatefulWidget {
+// (1) ودجت خارجي يغلف الصفحة بالـ BlocProvider لتوفير الـ Cubit
+class GovernmentEntitiesPage extends StatelessWidget {
   const GovernmentEntitiesPage({super.key});
 
   @override
-  State<GovernmentEntitiesPage> createState() => _GovernmentEntitiesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        // إنشاء الـ DataSource والـ Repository والـ UseCase وتمريرهم للـ Cubit
+        final remoteDataSource = GovernmentEntitiesRemoteDataSourceImpl(
+          dio: Dio(),
+        );
+        final repository = GovernmentEntitiesRepositoryImpl(
+          remoteDataSource: remoteDataSource,
+        );
+        final useCase = GetGovernmentEntitiesUseCase(repository);
+
+        // إنشاء الـ Cubit واستدعاء دالة جلب البيانات مباشرة عند الفتح
+        return GovernmentEntitiesCubit(useCase)..fetchGovernmentEntities();
+      },
+      child: const _GovernmentEntitiesPageContent(),
+    );
+  }
 }
 
-class _GovernmentEntitiesPageState extends State<GovernmentEntitiesPage> {
+// (2) محتوى الصفحة الرئيسي
+class _GovernmentEntitiesPageContent extends StatefulWidget {
+  const _GovernmentEntitiesPageContent();
+
+  @override
+  State<_GovernmentEntitiesPageContent> createState() =>
+      _GovernmentEntitiesPageContentState();
+}
+
+class _GovernmentEntitiesPageContentState
+    extends State<_GovernmentEntitiesPageContent> {
   final TextEditingController _searchController = TextEditingController();
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -96,15 +133,65 @@ class _GovernmentEntitiesPageState extends State<GovernmentEntitiesPage> {
               searchController: _searchController,
               scale: scale,
               primaryColor: primaryColor,
-              onChanged: (value) => setState(() {}),
-              onClear: () => setState(() => _searchController.clear()),
+              onChanged: (value) {
+                // إرسال النص المكتوب فوراً للـ Cubit ليفلتر النتائج
+                context.read<GovernmentEntitiesCubit>().searchEntities(value);
+              },
+              onClear: () {
+                _searchController.clear();
+                // إرجاع القائمة الكاملة عند مسح نص البحث
+                context.read<GovernmentEntitiesCubit>().searchEntities('');
+              },
               onSearchPressed: () => FocusScope.of(context).unfocus(),
             ),
-            GovernmentEntitiesSlider(
-              pageController: _pageController,
-              onPageChanged: (index) => setState(() => _currentPage = index),
-              scale: scale,
+
+            // الاستماع لحالة الـ Cubit ورسم الشاشة بناءً عليها
+            BlocBuilder<GovernmentEntitiesCubit, GovernmentEntitiesState>(
+              builder: (context, state) {
+                if (state is GovernmentEntitiesLoading) {
+                  return SizedBox(
+                    height: 300 * scale,
+                    child: const Center(
+                      child: CircularProgressIndicator(color: primaryColor),
+                    ),
+                  );
+                } else if (state is GovernmentEntitiesError) {
+                  return SizedBox(
+                    height: 300 * scale,
+                    child: Center(
+                      child: Text(
+                        state.message,
+                        style: GoogleFonts.tajawal(
+                          color: Colors.red,
+                          fontSize: 14 * scale,
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (state is GovernmentEntitiesLoaded) {
+                  if (state.entities.isEmpty) {
+                    return SizedBox(
+                      height: 300 * scale,
+                      child: Center(
+                        child: Text(
+                          'لا توجد جهات حكومية حالياً',
+                          style: GoogleFonts.tajawal(fontSize: 16 * scale),
+                        ),
+                      ),
+                    );
+                  }
+                  return GovernmentEntitiesSlider(
+                    entities: state.entities,
+                    pageController: _pageController,
+                    onPageChanged: (index) =>
+                        setState(() => _currentPage = index),
+                    scale: scale,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
+
             SizedBox(height: 16 * scale),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

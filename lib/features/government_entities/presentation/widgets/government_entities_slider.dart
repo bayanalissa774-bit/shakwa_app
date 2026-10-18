@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shakwa_app/features/government_entities/domain/entities/government_entity.dart';
 import 'package:shakwa_app/features/government_entities/presentation/widgets/entity_card.dart';
 
 class GovernmentEntitiesSlider extends StatelessWidget {
+  final List<GovernmentEntity> entities;
   final PageController pageController;
   final ValueChanged<int> onPageChanged;
   final double scale;
 
   const GovernmentEntitiesSlider({
     super.key,
+    required this.entities,
     required this.pageController,
     required this.onPageChanged,
     required this.scale,
@@ -15,45 +18,49 @@ class GovernmentEntitiesSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // نحدد عدد العناصر في كل صفحة (مثلاً 4 بطاقات لكل صفحة)
+    const int itemsPerPage = 4;
+    final int pageCount = (entities.length / itemsPerPage).ceil();
+
     return SizedBox(
       height: 380 * scale,
-      child: PageView(
+      child: PageView.builder(
         controller: pageController,
         onPageChanged: onPageChanged,
-        children: [
-          _buildGridPage(scale, const [
-            EntityCard(title: 'وزارة الصحة', subtitle: 'الرعاية الصحية'),
-            EntityCard(title: 'وزارة الداخلية', subtitle: 'خدمات المواطنين'),
-            EntityCard(title: 'وزارة التربية', subtitle: 'التعليم الأساسي'),
-            EntityCard(title: 'وزارة العدل', subtitle: 'الخدمات العدلية'),
-          ]),
-          _buildGridPage(scale, const [
-            EntityCard(title: 'وزارة التربية', subtitle: 'التعليم الأساسي'),
-            EntityCard(title: 'وزارة التعليم', subtitle: 'التعليم العالي'),
-            EntityCard(title: 'وزارة الداخلية', subtitle: 'خدمات المواطنين'),
-            EntityCard(title: 'وزارة العدل', subtitle: 'الخدمات العدلية'),
-          ]),
-          _buildGridPage(scale, const [
-            EntityCard(title: 'وزارة المالية', subtitle: 'الضرائب والرسوم'),
-            EntityCard(title: 'وزارة النقل', subtitle: 'النقل البري والبحري'),
-            EntityCard(title: 'وزارة الإدارة', subtitle: 'شؤون البلديات'),
-            EntityCard(title: 'وزارة الاتصالات', subtitle: 'التحول الرقمي'),
-          ]),
-        ],
-      ),
-    );
-  }
+        itemCount: pageCount == 0 ? 1 : pageCount,
+        itemBuilder: (context, pageIndex) {
+          final int startIndex = pageIndex * itemsPerPage;
+          final int endIndex = (startIndex + itemsPerPage < entities.length)
+              ? startIndex + itemsPerPage
+              : entities.length;
 
-  Widget _buildGridPage(double scale, List<Widget> children) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16 * scale,
-        mainAxisSpacing: 16 * scale,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        children: children,
+          final pageEntities = entities.sublist(startIndex, endIndex);
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16 * scale,
+                mainAxisSpacing: 16 * scale,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: pageEntities.length,
+              itemBuilder: (context, index) {
+                final entity = pageEntities[index];
+                return EntityCard(
+                  title: entity.name,
+                  subtitle: entity.description,
+                  onTap: () {
+                    // عند الضغط على البطاقة (مثلاً الانتقال لصفحة تفاصيل الجهة)
+                  },
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
