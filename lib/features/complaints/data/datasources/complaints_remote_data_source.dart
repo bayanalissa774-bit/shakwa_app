@@ -49,12 +49,44 @@ class ComplaintsRemoteDataSourceImpl implements ComplaintsRemoteDataSource {
   @override
   Future<void> addComplaint(ComplaintModel complaint) async {
     try {
-      await dio.post(
+      // إرسال الطلب وحفظ النتيجة في متغير response
+      final response = await dio.post(
         'https://palegoldenrod-rabbit-772161.hostingersite.com/api/v1/complaint/create.php',
         data: complaint.toJson(),
       );
+
+      // طباعة الاستجابة عند النجاح
+      print('================ SUCCESS ================');
+      print('Status Code: ${response.statusCode}');
+      print('Response Data: ${response.data}');
+      print('=========================================');
+    } on DioException catch (e) {
+      // التعامل مع أخطاء Dio بشكل مفصل
+      print('================ DIO ERROR ================');
+      print('Error Type: ${e.type}');
+      print('Message: ${e.message}');
+
+      if (e.response != null) {
+        // إذا كان هناك رد قادم من السيرفر (مثل 400, 404, 500)
+        print('Status Code: ${e.response?.statusCode}');
+        print('Server Response Data: ${e.response?.data}');
+        print('Headers: ${e.response?.headers}');
+      } else {
+        // أخطاء الاتصال أو انتهاء وقت الانتظار (Timeout)
+        print(
+          'Error sending request (No response from server): ${e.requestOptions}',
+        );
+      }
+      print('===========================================');
+
+      throw Exception('فشل في إرسال الشكوى: ${e.response?.data ?? e.message}');
     } catch (e) {
-      throw Exception('فشل في إرسال الشكوى: $e');
+      // التعامل مع الأخطاء العامة الأخرى
+      print('================ UNKNOWN ERROR ================');
+      print('General Error: $e');
+      print('===============================================');
+
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
   }
 }
