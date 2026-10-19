@@ -29,7 +29,8 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
     required String title,
     required String description,
     required int categoryId,
-    required int citizenId, int? entityId,
+    required int citizenId,
+    int? entityId,
   }) async {
     emit(ComplaintsLoading());
 
@@ -48,6 +49,8 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
     result.fold((failureMessage) => emit(ComplaintsError(failureMessage)), (
       _,
     ) async {
+      emit(ComplaintsLoading());
+
       // بعد النجاح، نعيد جلب القائمة لتحديث الواجهة تلقائياً
       await fetchComplaints();
     });
