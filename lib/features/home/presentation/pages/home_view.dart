@@ -1,7 +1,9 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_cubit.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_page.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/complaints_list_page.dart';
 import 'package:shakwa_app/features/government_entities/presentation/pages/government_entities_page.dart';
@@ -120,13 +122,17 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const AddComplaintPage(),
                           ),
                         );
+
+                        if (result == true && context.mounted) {
+                          context.read<ComplaintsCubit>().fetchComplaints();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0C655E),

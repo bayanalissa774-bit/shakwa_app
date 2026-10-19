@@ -46,13 +46,9 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
     // إرسال الشكوى عبر الـ Use Case
     final result = await addComplaintUseCase(newComplaint);
 
-    result.fold((failureMessage) => emit(ComplaintsError(failureMessage)), (
-      _,
-    ) async {
-      emit(ComplaintsLoading());
-
-      // بعد النجاح، نعيد جلب القائمة لتحديث الواجهة تلقائياً
-      await fetchComplaints();
-    });
+    await result.fold(
+      (failureMessage) async => emit(ComplaintsError(failureMessage)),
+      (_) => fetchComplaints(),
+    );
   }
 }

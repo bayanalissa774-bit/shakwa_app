@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
 class AddComplaintAppBar extends StatelessWidget
     implements PreferredSizeWidget {
@@ -24,13 +23,7 @@ class AddComplaintAppBar extends StatelessWidget
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeView()),
-                    (route) => false,
-                  );
-                },
+                onTap: () => Navigator.pop(context),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

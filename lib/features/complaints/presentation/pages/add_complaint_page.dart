@@ -5,13 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
-import 'package:shakwa_app/features/complaints/data/repositories/complaints_repository_impl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:shakwa_app/features/complaints/data/datasources/complaints_remote_data_source.dart';
-import 'package:shakwa_app/features/complaints/domain/usecases/add_complaint_usecase.dart';
-import 'package:shakwa_app/features/complaints/domain/usecases/get_complaints_usecase.dart';
 
 import '../widgets/add_complaint/sections/complaint_dropdowns_section.dart';
 import '../widgets/add_complaint/inputs/complaint_description_widget.dart';
@@ -29,19 +23,7 @@ class AddComplaintPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final dio = Dio();
-        final remoteDataSource = ComplaintsRemoteDataSourceImpl(dio);
-        final repository = ComplaintsRepositoryImpl(remoteDataSource);
-
-        return ComplaintsCubit(
-          getComplaintsUseCase: GetComplaintsUseCase(repository),
-          addComplaintUseCase: AddComplaintUseCase(repository),
-        );
-      },
-      child: const AddComplaintView(),
-    );
+    return const AddComplaintView();
   }
 }
 
@@ -61,6 +43,7 @@ class _AddComplaintViewState extends State<AddComplaintView> {
 
   int? _selectedCategoryId;
   int? _selectedEntityId;
+  bool _isSubmitting = false;
 
   final List<dynamic> _complaintImages = [
     'assets/images/trash_complaint.png',
@@ -105,13 +88,14 @@ class _AddComplaintViewState extends State<AddComplaintView> {
     final prefs = await SharedPreferences.getInstance();
     final int citizenId = prefs.getInt('citizen_id') ?? 1;
 
-    context.read<ComplaintsCubit>().createComplaint(
-          title: title,
-          description: description,
-          categoryId: _selectedCategoryId ?? 1,
-          entityId: _selectedEntityId,
-          citizenId: citizenId,
-        );
+    _isSubmitting = true;
+    await context.read<ComplaintsCubit>().createComplaint(
+      title: title,
+      description: description,
+      categoryId: _selectedCategoryId ?? 1,
+      entityId: _selectedEntityId,
+      citizenId: citizenId,
+    );
   }
 
   @override
@@ -122,7 +106,10 @@ class _AddComplaintViewState extends State<AddComplaintView> {
       textDirection: TextDirection.rtl,
       child: BlocListener<ComplaintsCubit, ComplaintsState>(
         listener: (context, state) {
+          if (!_isSubmitting) return;
+
           if (state is ComplaintsLoaded) {
+            _isSubmitting = false;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -134,6 +121,7 @@ class _AddComplaintViewState extends State<AddComplaintView> {
             );
             Navigator.pop(context, true);
           } else if (state is ComplaintsError) {
+            _isSubmitting = false;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(

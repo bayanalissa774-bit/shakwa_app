@@ -209,7 +209,7 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
               MaterialPageRoute(builder: (context) => const AddComplaintPage()),
             );
 
-            if (result == true) {
+            if (result == true && context.mounted) {
               context.read<ComplaintsCubit>().fetchComplaints();
             }
           },
