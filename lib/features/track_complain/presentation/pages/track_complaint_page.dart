@@ -1,22 +1,47 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
-import '../widgets/complaint_success_card.dart'; // استدعاء كرت النجاح
-import '../widgets/complaint_error_card.dart'; // استدعاء كرت الخطأ
+// استدعاء ملفات الـ Clean Architecture الخاصة بكِ
+import '../../data/datasources/track_remote_data_source.dart';
+import '../../data/repositories/track_repository_impl.dart';
+import '../../domain/usecases/track_complaint_usecase.dart';
+import '../cubit/track_cubit.dart';
+import '../cubit/track_state.dart';
+import '../widgets/complaint_error_card.dart';
+import '../widgets/complaint_success_card.dart';
 
-class TrackComplaintPage extends StatefulWidget {
+// 1. الكلاس الرئيسي: وظيفته تزويد الصفحة بالـ Cubit
+class TrackComplaintPage extends StatelessWidget {
   const TrackComplaintPage({super.key});
 
   @override
-  State<TrackComplaintPage> createState() => _TrackComplaintPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final dio = Dio();
+        final dataSource = TrackRemoteDataSourceImpl(dio);
+        final repository = TrackRepositoryImpl(dataSource);
+        final useCase = TrackComplaintUseCase(repository);
+        return TrackCubit(trackComplaintUseCase: useCase);
+      },
+      child: const TrackComplaintView(),
+    );
+  }
 }
 
-class _TrackComplaintPageState extends State<TrackComplaintPage>
+// 2. كلاس الواجهة والتصميم
+class TrackComplaintView extends StatefulWidget {
+  const TrackComplaintView({super.key});
+
+  @override
+  State<TrackComplaintView> createState() => _TrackComplaintViewState();
+}
+
+class _TrackComplaintViewState extends State<TrackComplaintView>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
-  bool _isLoading = false;
-  int? _searchResultType; // null: لا شيء, 0: خطأ, 1: نجاح
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -48,24 +73,11 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
     if (query.isEmpty) return;
 
     FocusScope.of(context).unfocus();
-    setState(() {
-      _isLoading = true;
-      _searchResultType = null;
-    });
-    _animController.reset();
 
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        if (query == '20240101501') {
-          _searchResultType = 1; // نجاح
-        } else {
-          _searchResultType = 0; // خطأ
-        }
-      });
-      _animController.forward();
-    });
+    // استدعاء الـ Cubit للبحث عبر الـ API
+    context.read<TrackCubit>().trackComplaint(query);
+    _animController.reset();
+    _animController.forward();
   }
 
   @override
@@ -84,7 +96,6 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // اليسار: الشعار والنسر مع كلمة شكوى
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -94,7 +105,7 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
                   width: 80 * scale,
                   errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.shield,
-                    color: const Color(0xFFD4AF37),
+                    color: goldColor,
                     size: 37 * scale,
                   ),
                 ),
@@ -118,16 +129,7 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
               ),
             ),
             InkWell(
-              onTap: () {
-                // العودة المباشرة للرئيسية ومسح الصفحات السابقة
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeView(),
-                  ), // استبدلي HomeView بالاسم الصحيح لدتيكِ
-                  (route) => false,
-                );
-              },
+              onTap: () => Navigator.pop(context),
               child: Row(
                 children: [
                   Text(
@@ -159,6 +161,7 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // حقل البحث
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -223,37 +226,45 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
               ),
             ),
             SizedBox(height: 16 * scale),
-            SizedBox(
-              width: double.infinity,
-              height: 52 * scale,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _performSearch,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  disabledBackgroundColor: primaryColor.withValues(alpha: 0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12 * scale),
-                  ),
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 24 * scale,
-                        height: 24 * scale,
-                        child: const CircularProgressIndicator(
-                          color: goldColor,
-                          strokeWidth: 2.5,
-                        ),
-                      )
-                    : Text(
-                        'بحث',
-                        style: GoogleFonts.tajawal(
-                          fontSize: 16 * scale,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+
+            // زر البحث الموصول بالـ Cubit
+            BlocBuilder<TrackCubit, TrackState>(
+              builder: (context, state) {
+                final isLoading = state is TrackLoading;
+                return SizedBox(
+                  width: double.infinity,
+                  height: 52 * scale,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _performSearch,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      disabledBackgroundColor:
+                          primaryColor.withValues(alpha: 0.8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12 * scale),
                       ),
-              ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 24 * scale,
+                            height: 24 * scale,
+                            child: const CircularProgressIndicator(
+                              color: goldColor,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Text(
+                            'بحث',
+                            style: GoogleFonts.tajawal(
+                              fontSize: 16 * scale,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                );
+              },
             ),
             SizedBox(height: 14 * scale),
             Text(
@@ -267,17 +278,29 @@ class _TrackComplaintPageState extends State<TrackComplaintPage>
             ),
             SizedBox(height: 30 * scale),
 
-            // استدعاء الكروت المنفصلة مع الحركات الذكية
-            if (_searchResultType != null)
-              FadeTransition(
-                opacity: _fadeAnim,
-                child: SlideTransition(
-                  position: _slideAnim,
-                  child: _searchResultType == 0
-                      ? const ComplaintErrorCard()
-                      : const ComplaintSuccessCard(),
-                ),
-              ),
+            // عرض نتيجة البحث من الـ Cubit
+            BlocBuilder<TrackCubit, TrackState>(
+              builder: (context, state) {
+                if (state is TrackLoaded) {
+                  return FadeTransition(
+                    opacity: _fadeAnim,
+                    child: SlideTransition(
+                      position: _slideAnim,
+                      child: ComplaintSuccessCard(complaint: state.complaint),
+                    ),
+                  );
+                } else if (state is TrackError) {
+                  return FadeTransition(
+                    opacity: _fadeAnim,
+                    child: SlideTransition(
+                      position: _slideAnim,
+                      child: const ComplaintErrorCard(),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
       ),

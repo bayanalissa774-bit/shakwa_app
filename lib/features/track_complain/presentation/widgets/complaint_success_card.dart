@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../domain/entities/track_entity.dart'; // تأكدي من ضبط مسار الاستدعاء بحسب مجلدك
 
 class ComplaintSuccessCard extends StatelessWidget {
-  const ComplaintSuccessCard({super.key});
+  // 1. تعريف الحقل الذي سيحمل بيانات الشكوى القادمة من السيرفر
+  final TrackEntity complaint;
+
+  // 2. إضافته إلى الـ Constructor ليقبل الحقل 'complaint'
+  const ComplaintSuccessCard({
+    super.key,
+    required this.complaint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +42,11 @@ class ComplaintSuccessCard extends StatelessWidget {
                 vertical: 6 * scale,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFA000), // برتقالي تحت المعالجة
+                color: const Color(0xFFFFA000), // حالة الشكوى
                 borderRadius: BorderRadius.circular(6 * scale),
               ),
               child: Text(
-                'تحت المعالجة',
+                complaint.status.isNotEmpty ? complaint.status : 'تحت المعالجة',
                 style: GoogleFonts.tajawal(
                   fontSize: 12 * scale,
                   fontWeight: FontWeight.bold,
@@ -48,19 +56,17 @@ class ComplaintSuccessCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 12 * scale),
-          _buildInfoRow('رقم الشكاوي :', '20240101501', scale),
+          
+          // استخدام القيم الحقيقية من كائن complaint القادم من الـ API
+          _buildInfoRow('رقم الشكاوي :', complaint.id, scale),
           SizedBox(height: 10 * scale),
-          _buildInfoRow('عنوان مختصر :', 'صيانة إنارة الطريق', scale),
+          _buildInfoRow('عنوان مختصر :', complaint.title, scale),
           SizedBox(height: 10 * scale),
-          _buildInfoRow(
-            'اسم الجهة :',
-            'بلدية حلب _ أمانة منطقة المرديان',
-            scale,
-          ),
+          _buildInfoRow('اسم الجهة :', complaint.government, scale),
           SizedBox(height: 10 * scale),
-          _buildInfoRow('التصنيف :', 'صيانة طريق', scale),
+          _buildInfoRow('التصنيف :', complaint.category, scale),
           SizedBox(height: 10 * scale),
-          _buildInfoRow('تاريخ التقدم :', '15 أكتوبر 2026', scale),
+          _buildInfoRow('تاريخ التقدم :', complaint.date, scale),
         ],
       ),
     );
@@ -70,12 +76,15 @@ class ComplaintSuccessCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(
-          value,
-          style: GoogleFonts.tajawal(
-            fontSize: 13.5 * scale,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF1E1E1E),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: GoogleFonts.tajawal(
+              fontSize: 13.5 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF1E1E1E),
+            ),
           ),
         ),
         SizedBox(width: 8 * scale),

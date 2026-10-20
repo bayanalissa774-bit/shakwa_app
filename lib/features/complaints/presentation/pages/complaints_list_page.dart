@@ -2,11 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dio/dio.dart';
-import 'package:shakwa_app/features/complaints/data/datasources/complaints_remote_data_source.dart';
-import 'package:shakwa_app/features/complaints/data/repositories/complaints_repository_impl.dart';
-import 'package:shakwa_app/features/complaints/domain/usecases/add_complaint_usecase.dart';
-import 'package:shakwa_app/features/complaints/domain/usecases/get_complaints_usecase.dart';
 import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_cubit.dart';
 import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_state.dart';
 
@@ -113,7 +108,6 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
             // استعراض الشكاوى القادمة من السيرفر مع الحفاظ على الأنيميشن وتصميم البطاقات
             Expanded(
               child: BlocConsumer<ComplaintsCubit, ComplaintsState>(
-             
                 builder: (context, state) {
                   if (state is ComplaintsLoading) {
                     return const Center(
@@ -195,9 +189,7 @@ class _ComplaintsListPageState extends State<ComplaintsListPage>
 
                   return const SizedBox.shrink();
                 },
-                listener: (BuildContext context, ComplaintsState state) {
-                  
-                },
+                listener: (BuildContext context, ComplaintsState state) {},
               ),
             ),
           ],
