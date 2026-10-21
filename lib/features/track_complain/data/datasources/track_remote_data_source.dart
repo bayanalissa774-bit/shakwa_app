@@ -14,19 +14,32 @@ class TrackRemoteDataSourceImpl implements TrackRemoteDataSource {
   @override
   Future<ComplaintModel> trackComplaint(String complaintNumber) async {
     try {
-      // هنا نقوم بإرسال الطلب للرابط الفعلي للسيرفر (Endpoint)
       final response = await dio.get(
-        'https://palegoldenrod-rabbit-772161.hostingersite.com/api/v1/complaint/search.php', // (ضعي رابط الـ API الصحيح هنا لدتيكِ)
-        queryParameters: {'id': complaintNumber},
+        'https://palegoldenrod-rabbit-772161.hostingersite.com/api/v1/complaint/search.php',
+        queryParameters: {'keyword': complaintNumber},
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          },
+        ),
       );
 
+      print('RESPONSE DATA: ${response.data}');
+
       if (response.statusCode == 200 && response.data != null) {
-        return ComplaintModel.fromJson(response.data);
+        final List complaintsList = response.data['data'] ?? [];
+
+        if (complaintsList.isNotEmpty) {
+          return ComplaintModel.fromJson(complaintsList[0]);
+        } else {
+          throw Exception('لا يوجد نتائج مطابقة');
+        }
       } else {
-        throw Exception('فشل في جلب بيانات الشكوى من السيرفر');
+        throw Exception('فشل في جلب البيانات من السيرفر');
       }
     } catch (e) {
-      throw Exception('خطأ في الاتصال بالإنترنت أو رقم الشكوى غير موجود');
+      throw Exception('خطأ في الاتصال بالإنترنت أو رقم الشكوى غير موجود: $e');
     }
   }
 }
