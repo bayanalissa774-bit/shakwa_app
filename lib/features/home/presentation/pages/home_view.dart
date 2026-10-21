@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +8,11 @@ import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_cub
 import 'package:shakwa_app/features/complaints/presentation/pages/add_complaint_page.dart';
 import 'package:shakwa_app/features/complaints/presentation/pages/complaints_list_page.dart';
 import 'package:shakwa_app/features/government_entities/presentation/pages/government_entities_page.dart';
+import 'package:shakwa_app/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:shakwa_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:shakwa_app/features/home/domain/usecases/get_home_stats_usecase.dart';
+import 'package:shakwa_app/features/home/presentation/cubit/home_cubit.dart';
+import 'package:shakwa_app/features/home/presentation/cubit/home_state.dart';
 import 'package:shakwa_app/features/home/presentation/widgets/favorites_sheet.dart';
 import 'package:shakwa_app/features/home/presentation/widgets/home_view/home_banner_card.dart';
 import 'package:shakwa_app/features/home/presentation/widgets/home_view/home_app_bar.dart';
@@ -38,51 +44,64 @@ class _HomeViewState extends State<HomeView> {
       const ProfileView(),
     ];
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFFFFFF),
-        body: IndexedStack(index: _currentIndex, children: pages),
-        bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF2F4F4),
-            border: Border(top: BorderSide(color: Color(0xFFE0E0E0), width: 1)),
-          ),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: const Color(0xFFF2F4F4),
-            selectedItemColor: const Color(0xFF0C655E),
-            unselectedItemColor: Colors.black87,
-            selectedLabelStyle: GoogleFonts.tajawal(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+    return BlocProvider(
+      create: (context) => HomeCubit(
+        GetHomeStatsUseCase(
+          HomeRepositoryImpl(HomeRemoteDataSourceImpl(Dio())),
+        ),
+      )..fetchHomeStats(),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          // ... باقي الكود التصميمي الخاص بكِ هنا
+          backgroundColor: const Color(0xFFFFFFFF),
+          body: IndexedStack(index: _currentIndex, children: pages),
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF2F4F4),
+              border: Border(
+                top: BorderSide(color: Color(0xFFE0E0E0), width: 1),
+              ),
             ),
-            unselectedLabelStyle: GoogleFonts.tajawal(fontSize: 12),
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'رئيسية'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.article_outlined),
-                label: 'الشكاوي',
+            child: BottomNavigationBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: const Color(0xFFF2F4F4),
+              selectedItemColor: const Color(0xFF0C655E),
+              unselectedItemColor: Colors.black87,
+              selectedLabelStyle: GoogleFonts.tajawal(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.newspaper),
-                label: 'الأخبار',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_none),
-                label: 'الإشعارات',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                label: 'الحساب',
-              ),
-            ],
+              unselectedLabelStyle: GoogleFonts.tajawal(fontSize: 12),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'رئيسية',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.article_outlined),
+                  label: 'الشكاوي',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.newspaper),
+                  label: 'الأخبار',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.notifications_none),
+                  label: 'الإشعارات',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline),
+                  label: 'الحساب',
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -238,35 +257,59 @@ class _HomeViewState extends State<HomeView> {
                     ],
                   ),
                   SizedBox(height: 25 * scale),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: StatCard(
-                          title: 'تم الحل',
-                          value: '72',
-                          color: const Color(0xFF4CAF50),
-                          scale: scale,
-                        ),
-                      ),
-                      SizedBox(width: 12 * scale),
-                      Expanded(
-                        child: StatCard(
-                          title: 'قيد التنفيذ',
-                          value: '09',
-                          color: const Color(0xFF64B5F6),
-                          scale: scale,
-                        ),
-                      ),
-                      SizedBox(width: 12 * scale),
-                      Expanded(
-                        child: StatCard(
-                          title: 'قيد المعالجة',
-                          value: '14',
-                          color: const Color(0xFFFFD54F),
-                          scale: scale,
-                        ),
-                      ),
-                    ],
+                  BlocBuilder<HomeCubit, HomeState>(
+                    builder: (context, state) {
+                      if (state is HomeLoading) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0 * scale),
+                            child: const CircularProgressIndicator(
+                              color: Color(0xFF0C655E),
+                            ),
+                          ),
+                        );
+                      } else if (state is HomeLoaded) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                title: 'تم الحل',
+                                value: '${state.stats.resolvedCount}',
+                                color: const Color(0xFF4CAF50),
+                                scale: scale,
+                              ),
+                            ),
+                            SizedBox(width: 12 * scale),
+                            Expanded(
+                              child: StatCard(
+                                title: 'قيد التنفيذ',
+                                value: '${state.stats.inProgressCount}',
+                                color: const Color(0xFF64B5F6),
+                                scale: scale,
+                              ),
+                            ),
+                            SizedBox(width: 12 * scale),
+                            Expanded(
+                              child: StatCard(
+                                title: 'قيد المعالجة',
+                                value: '${state.stats.pendingCount}',
+                                color: const Color(0xFFFFD54F),
+                                scale: scale,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else if (state is HomeError) {
+                        return Text(
+                          'خطأ في تحميل الإحصائيات',
+                          style: GoogleFonts.tajawal(
+                            fontSize: 12 * scale,
+                            color: Colors.red,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
                   SizedBox(height: 15 * scale),
                 ],
