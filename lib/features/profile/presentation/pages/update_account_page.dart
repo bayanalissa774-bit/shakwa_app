@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shakwa_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:shakwa_app/features/profile/presentation/widgets/update_account/custom_text_field_widget.dart';
 import 'package:shakwa_app/features/profile/presentation/widgets/update_account/update_profile_header.dart';
 import 'package:shakwa_app/features/profile/presentation/widgets/update_account/update_id_card_picker.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 class UpdateAccountPage extends StatefulWidget {
   const UpdateAccountPage({super.key});
 
@@ -47,25 +48,24 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
     }
   }
 
-  void _save() {
-    setState(() => _submitted = true);
-    if (_formKey.currentState!.validate() && _idImage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'تم تعديل المعلومات بنجاح',
-            style: GoogleFonts.tajawal(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: const Color(0xFF0C655E),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      Future.delayed(
-        const Duration(milliseconds: 1200),
-        () => Navigator.pop(context),
-      );
-    }
+void _save() {
+  setState(() => _submitted = true);
+  
+  if (_formKey.currentState!.validate()) {
+    // تحويل الرقم الوطني (أو رقم المواطن) من نص إلى رقم صحيح int
+    int citizenNumber = int.tryParse(_nationalIdCtrl.text.trim()) ?? 0;
+
+    context.read<ProfileCubit>().updateProfile(
+          citizenNumber: citizenNumber,
+          citizenName: _nameCtrl.text.trim(),
+          phoneNumber: "", // إذا لم يكن له كنترولر حالياً، ضعي نص فارغ أو أضيفي له كنترولر _phoneCtrl
+          password: _passwordCtrl.text.trim(),
+          address: "", // إذا لم يكن له كنترولر حالياً، ضعي نص فارغ أو أضيفي له كنترولر _addressCtrl
+          email: _emailCtrl.text.trim(),
+          identityImage: _idImage, // صورة الهوية المحددة
+        );
   }
+}
 
   @override
   Widget build(BuildContext context) {
