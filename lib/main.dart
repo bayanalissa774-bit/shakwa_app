@@ -3,20 +3,28 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+// --- استيراد ملفات الـ Auth ---
+import 'package:shakwa_app/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:shakwa_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:shakwa_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:shakwa_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:shakwa_app/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:shakwa_app/features/auth/presentation/pages/register_view.dart';
+import 'package:shakwa_app/features/auth/presentation/pages/login_view.dart';
+
+// --- استيراد باقي الشاشات والـ Cubits ---
 import 'package:shakwa_app/features/complaints/data/datasources/complaints_remote_data_source.dart';
 import 'package:shakwa_app/features/complaints/data/repositories/complaints_repository_impl.dart';
 import 'package:shakwa_app/features/complaints/domain/usecases/add_complaint_usecase.dart';
 import 'package:shakwa_app/features/complaints/domain/usecases/get_complaints_usecase.dart';
 import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_cubit.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/profile_view.dart';
+import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
 import 'features/splash/presentation/pages/splash_view.dart';
 import 'features/splash/presentation/pages/splash_loading_view.dart';
-import 'features/auth/presentation/pages/login_view.dart';
 
-import 'features/auth/presentation/pages/signup_view.dart';
-
-import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
@@ -30,6 +38,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // 1. توفير الـ AuthCubit لشاشات الـ Auth (Login & Register)
+        BlocProvider<AuthCubit>(
+          create: (context) => AuthCubit(
+            loginUseCase: LoginUseCase(
+              AuthRepositoryImpl(
+                remoteDataSource: AuthRemoteDataSourceImpl(dio: Dio()),
+              ),
+            ),
+            registerUseCase: RegisterUseCase(
+              AuthRepositoryImpl(
+                remoteDataSource: AuthRemoteDataSourceImpl(dio: Dio()),
+              ),
+            ),
+          ),
+        ),
+
+        // 2. توفير الـ ComplaintsCubit لشاشات الشكاوى
         BlocProvider<ComplaintsCubit>(
           create: (context) => ComplaintsCubit(
             getComplaintsUseCase: GetComplaintsUseCase(
@@ -54,13 +79,11 @@ class MyApp extends StatelessWidget {
 
         // جدول المسارات والتنقلات
         routes: {
-          '/': (context) => const SplashView(), // 1. الشاشة الأولى
-          '/splash-loading': (context) =>
-              const SplashLoadingView(), // 2. شاشة التحميل
-          '/login': (context) => const LoginView(), // 3. شاشة تسجيل الدخول
-
-          '/signup': (context) => const SignUpView(),
-          '/home': (context) => HomeView(), // 4. شاشة الصفحة الرئيسية
+          '/': (context) => const SplashView(),
+          '/splash-loading': (context) => const SplashLoadingView(),
+          '/login': (context) => const LoginView(),
+          '/signup': (context) => const RegisterView(),
+          '/home': (context) => HomeView(),
         },
       ),
     );
