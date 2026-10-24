@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:dio/dio.dart';
 import 'package:shakwa_app/features/complaints/data/models/complaint_model.dart';
 

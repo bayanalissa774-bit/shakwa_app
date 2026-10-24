@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart'; // استيراد البكج الجاهزة

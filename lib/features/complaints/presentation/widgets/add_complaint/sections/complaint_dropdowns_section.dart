@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_super_parameters
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

@@ -5,9 +5,7 @@ import '../../domain/entities/citizen_entity.dart';
 import '../../domain/repositories/base_auth_repository.dart';
 import '../data_sources/auth_remote_data_source.dart';
 import '../models/citizen_model.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'package:dio/dio.dart';
+
 import 'dart:developer' as developer;
 
 class AuthRepositoryImpl implements BaseAuthRepository {

@@ -19,6 +19,10 @@ import 'package:shakwa_app/features/complaints/data/repositories/complaints_repo
 import 'package:shakwa_app/features/complaints/domain/usecases/add_complaint_usecase.dart';
 import 'package:shakwa_app/features/complaints/domain/usecases/get_complaints_usecase.dart';
 import 'package:shakwa_app/features/complaints/presentation/cubit/complaints_cubit.dart';
+import 'package:shakwa_app/features/profile/data/data_sources/profile_remote_data_source.dart';
+import 'package:shakwa_app/features/profile/data/repositories/profile_repo_impl.dart';
+import 'package:shakwa_app/features/profile/domain/use_cases/update_profile_use_case.dart';
+import 'package:shakwa_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:shakwa_app/features/profile/presentation/pages/profile_view.dart';
 import 'package:shakwa_app/features/home/presentation/pages/home_view.dart';
 
@@ -39,6 +43,15 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // 1. توفير الـ AuthCubit لشاشات الـ Auth (Login & Register)
+        BlocProvider<ProfileCubit>(
+          create: (context) => ProfileCubit(
+            updateProfileUseCase: UpdateProfileUseCase(
+              ProfileRepoImpl(
+                remoteDataSource: ProfileRemoteDataSourceImpl(dio: Dio()),
+              ),
+            ),
+          ),
+        ),
         BlocProvider<AuthCubit>(
           create: (context) => AuthCubit(
             loginUseCase: LoginUseCase(
